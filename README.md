@@ -1,5 +1,18 @@
 # README #
 
-1. Placer le script dans le répertoire /usr/bin
-2. Donner les droits d'exécution sur le script : chmod +x vhost
-3. Appeler le script depuis le terminal en root : sudo vhost
+Installation
+------------
+
+1. Clone this repository wherever you want
+
+<b>$ git clone https://github.com/Jbuchs/vhost.git</b>
+
+2. Move the script in /usr/bin
+
+3. Give execution rights on the script
+
+<b>$ chmod + x vhost</b>
+
+3. Call the script from the terminal as root
+
+<b>$ sudo vhost</b>

@@ -13,7 +13,7 @@ Move the script in <i>/usr/bin</i>
 
 Give execution rights on the script
 
-<b>$ chmod + x vhost</b>
+<b>$ chmod a+x vhost</b>
 
 Call the script from the terminal as root
 

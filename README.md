@@ -23,4 +23,5 @@ Parameters
 ----------
 
 -symfony :  Provide an access to the /web directory when calling the url
--chmod :    Chmod directly the created directory /var/www/thisDirectory
+
+-chmod :    Chmod directly the created directory <i>/var/www/thisDirectory</i>

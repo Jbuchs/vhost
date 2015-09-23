@@ -1,4 +1,5 @@
 # README #
+Vhost allows you to create quickly virtual hosts on Apache2 even if you don't know anything about Apache.
 
 Installation
 ------------

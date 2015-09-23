@@ -7,7 +7,7 @@ Clone this repository wherever you want
 
 <b>$ git clone https://github.com/Jbuchs/vhost.git</b>
 
-Move the script in /usr/bin
+Move the script in <i>/usr/bin</i>
 
 <b>$ mv ./vhost /usr/bin</b>
 

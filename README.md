@@ -1,5 +1,28 @@
 # README #
+Vhost allows you to create quickly virtual hosts on Apache2 even if you don't know anything about Apache.
 
-1. Placer le script dans le répertoire /usr/bin
-2. Donner les droits d'exécution sur le script : chmod +x vhost
-3. Appeler le script depuis le terminal en root : sudo vhost
+Installation
+------------
+
+Clone this repository wherever you want
+
+<b>$ git clone https://github.com/Jbuchs/vhost.git</b>
+
+Move the script in <i>/usr/bin</i>
+
+<b>$ mv ./vhost /usr/bin</b>
+
+Give execution rights on the script
+
+<b>$ chmod a+x vhost</b>
+
+Call the script from the terminal as root
+
+<b>$ sudo vhost</b>
+
+Parameters
+----------
+
+-symfony :  Provide an access to the /web directory when calling the url
+
+-chmod :    Chmod directly the created directory <i>/var/www/thisDirectory</i>

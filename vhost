@@ -1,0 +1,132 @@
+#!/bin/bash
+
+# VHOST 1.1
+# virtual host generator
+# Joel Buchs - 2014
+#-----------------------
+
+#some usefull variables
+dirUsrBin="/usr/lib/cgi-bin"
+dirShareDoc="/usr/share/doc/"
+vhostpath=''
+symfDirName=''
+symfRootDir="web"
+message=''
+
+#welcome
+cat << "EOF"
+
+        _                  _     __      __  
+       | |                | |   /  |    /  | 
+__   __| |__    ___   ___ | |_  `| |    `| | 
+\ \ / /| '_ \  / _ \ / __|| __|  | |     | | 
+ \ V / | | | || (_) |\__ \| |_  _| |_ _ _| |_
+  \_/  |_| |_| \___/ |___/ \__| \___/(_)\___/
+
+				BY JOEL BUCHS                                         	
+    
+ 
+EOF
+
+printf "AVAILABLE PARAMETERS\n\n -symfony\n -chmod\n\n"
+
+
+#create new directory
+echo "entrez le nom du nouveau site : "
+read dirName
+
+echo "creation du repertoire racine..."
+sudo mkdir "/var/www/$dirName"
+
+#check if project using symfony
+if [ "$1" = "-symfony" ] || [ "$2" = "-symfony" ]
+then
+	symfDirName="$dirName/$symfRootDir"
+	sudo mkdir "/var/www/$dirName/web"
+	message="<br><br>Please remove the <b>/web</b> directory and install your symfony project in <b>/var/www/$dirName</b>"
+else
+	symfDirName="$dirName"
+fi
+
+
+sudo touch "/var/www/$symfDirName/index.html"
+
+echo "<h1>It works !!!</h1><p>Site successfully initialized! This file is located in <b>/var/www/$symfDirName</b>. $message</p>" > "/var/www/$symfDirName/index.html"
+
+#create vhost file
+vhostpath="/etc/apache2/sites-available/$dirName.conf"
+sudo touch $vhostpath
+
+#vhost variables
+echo "ServerName (exemple : local.monsite.ch) : "
+read serverName
+
+echo "email de l'administrateur : "
+read serverAdmin
+
+echo "creation de l'hote virtuel..."
+
+sudo chmod 644 $vhostpath
+
+#virtual host generation
+sudo cat <<EOF >> "$vhostpath"
+<VirtualHost *:80>
+	ServerAdmin $serverAdmin
+	ServerName $serverName
+
+	DocumentRoot /var/www/$symfDirName
+	<Directory />
+		Options FollowSymLinks
+		AllowOverride All
+	</Directory>
+	<Directory /var/www/$symfDirName>
+		Options Indexes FollowSymLinks MultiViews
+		AllowOverride All
+		Order allow,deny
+		allow from all
+	</Directory>
+
+	ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+	<Directory $dirUsrBin>
+		AllowOverride None
+		Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+		Order allow,deny
+		Allow from all
+	</Directory>
+
+	ErrorLog /var/log/apache2/error.log
+
+	LogLevel warn
+
+	CustomLog /var/log/apache2/access.log combined
+
+    Alias /doc/ $dirShareDoc
+    <Directory $dirShareDoc>
+        Options Indexes MultiViews FollowSymLinks
+        AllowOverride None
+        Order deny,allow
+        Deny from all
+        Allow from 127.0.0.0/255.0.0.0 ::1/128
+    </Directory>
+
+</VirtualHost>
+EOF
+
+
+
+echo "activation du site..."
+sudo a2ensite $dirName.conf
+
+echo "ajout d'une entree au fichier host..."
+sudo sed -i '1s/^/127.0.0.1 \t'"$serverName"'\n/' /etc/hosts
+
+#chmod (optionnal)
+if [ "$1" = "-chmod" ] || [ "$2" = "-chmod" ]
+then
+	sudo chmod -R 777 "/var/www/$dirName"
+fi
+
+echo "redemarrage d'apache..."
+sudo /etc/init.d/apache2 reload
+
+echo "terminé ! Votre site est désormais disponible à cette adresse : $serverName"

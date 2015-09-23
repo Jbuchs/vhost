@@ -5,7 +5,7 @@ Installation
 
 Clone this repository wherever you want
 
-$ git clone https://github.com/Jbuchs/vhost.git</b>
+<b>$ git clone https://github.com/Jbuchs/vhost.git</b>
 
 Move the script in /usr/bin
 

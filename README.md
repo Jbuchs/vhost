@@ -9,6 +9,8 @@ Clone this repository wherever you want
 
 Move the script in /usr/bin
 
+<b>$ mv ./vhost /usr/bin</b>
+
 Give execution rights on the script
 
 <b>$ chmod + x vhost</b>
@@ -16,3 +18,9 @@ Give execution rights on the script
 Call the script from the terminal as root
 
 <b>$ sudo vhost</b>
+
+Parameters
+----------
+
+-symfony :  Provide an access to the /web directory when calling the url
+-chmod :    Chmod directly the created directory /var/www/thisDirectory

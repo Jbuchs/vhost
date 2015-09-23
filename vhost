@@ -32,10 +32,10 @@ printf "AVAILABLE PARAMETERS\n\n -symfony\n -chmod\n\n"
 
 
 #create new directory
-echo "entrez le nom du nouveau site : "
+echo "Please enter the name of the new website : "
 read dirName
 
-echo "creation du repertoire racine..."
+echo "root directory creation..."
 sudo mkdir "/var/www/$dirName"
 
 #check if project using symfony
@@ -58,13 +58,13 @@ vhostpath="/etc/apache2/sites-available/$dirName.conf"
 sudo touch $vhostpath
 
 #vhost variables
-echo "ServerName (exemple : local.monsite.ch) : "
+echo "ServerName (for instance : local.mysite.ch) : "
 read serverName
 
-echo "email de l'administrateur : "
+echo "Please enter the website administrator's email address : "
 read serverAdmin
 
-echo "creation de l'hote virtuel..."
+echo "creating the virtual host..."
 
 sudo chmod 644 $vhostpath
 
@@ -114,10 +114,10 @@ EOF
 
 
 
-echo "activation du site..."
+echo "website activation..."
 sudo a2ensite $dirName.conf
 
-echo "ajout d'une entree au fichier host..."
+echo "adding an entry to the host file..."
 sudo sed -i '1s/^/127.0.0.1 \t'"$serverName"'\n/' /etc/hosts
 
 #chmod (optionnal)
@@ -126,7 +126,7 @@ then
 	sudo chmod -R 777 "/var/www/$dirName"
 fi
 
-echo "redemarrage d'apache..."
+echo "restarting Apache..."
 sudo /etc/init.d/apache2 reload
 
-echo "terminé ! Votre site est désormais disponible à cette adresse : $serverName"
+echo "Finished! Your website is now available to this address : $serverName"

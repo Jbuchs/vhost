@@ -9,6 +9,7 @@ Clone this repository wherever you want
 <b>$ git clone https://github.com/Jbuchs/vhost.git</b>
 
 Enter the vhost directory
+
 <b>$ cd /vhost</b>
 
 Start the script in <i>/usr/bin</i>

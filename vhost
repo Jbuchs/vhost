@@ -77,10 +77,12 @@ then
 fi
 
 #create new directory
-echo "Please enter the name of the new website : "
+echo
+echo -e "\e[93mPlease enter the name of the new website : "
 read dirName
 
-echo "root directory creation..."
+echo
+echo -e "\e[39mroot directory creation..."
 sudo mkdir "/var/www/$dirName"
 
 #check if project using symfony
@@ -103,13 +105,17 @@ vhostpath="/etc/apache2/sites-available/$dirName.conf"
 sudo touch $vhostpath
 
 #vhost variables
-echo "ServerName (for instance : local.mysite.ch) : "
+echo
+echo -e "\e[93mServerName (for instance : local.mysite.ch) : "
 read serverName
 
-echo "Please enter the website administrator's email address : "
+
+echo
+echo -e "\e[93mPlease enter the website administrator's email address : "
 read serverAdmin
 
-echo "creating the virtual host..."
+echo
+echo -e "\e[39mcreating the virtual host..."
 
 sudo chmod 644 $vhostpath
 
@@ -158,11 +164,12 @@ sudo cat <<EOF >> "$vhostpath"
 EOF
 
 
-
-echo "website activation..."
+echo
+echo -e "\e[39mwebsite activation..."
 sudo a2ensite $dirName.conf
 
-echo "adding an entry to the host file..."
+echo
+echo -e "\e[39madding an entry to the host file..."
 sudo sed -i '1s/^/127.0.0.1 \t'"$serverName"'\n/' /etc/hosts
 
 #chmod (optionnal)
@@ -171,7 +178,9 @@ then
 	sudo chmod -R 777 "/var/www/$dirName"
 fi
 
-echo "restarting Apache..."
+echo
+echo -e "\e[39mrestarting Apache..."
 sudo /etc/init.d/apache2 reload
 
-echo "Finished! Your website is now available to this address : $serverName"
+echo
+echo -e "\e[32mFinished! Your website is now available to this address : $serverName"

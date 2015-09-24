@@ -24,12 +24,57 @@ __   __| |__    ___   ___ | |_  `| |    `| |
   \_/  |_| |_| \___/ |___/ \__| \___/(_)\___/
 
 				BY JOEL BUCHS                                         	
-    
+   
  
 EOF
 
-printf "AVAILABLE PARAMETERS\n\n -symfony\n -chmod\n\n"
+printf "AVAILABLE COMMANDS\n\n sudo vhost -symfony\n sudo vhost -chmod\n sudo vhost install\n sudo vhost update\n\n"
 
+#install function
+function install {
+	#delete if already installed
+	if [ -f /usr/bin/vhost ]
+	then
+		sudo rm /usr/bin/vhost
+	fi
+
+	#cp script in the right directory
+	sudo cp ./vhost /usr/bin/vhost
+
+	#chmod the files
+	sudo chmod a+x ./vhost /usr/bin/vhost
+
+	printf "The programm will restart in a few seconds..."
+
+	sleep 3
+
+	sudo vhost
+}
+
+#update function
+function update {
+	#check if git is present
+	if git --version 2>&1 >/dev/null
+	then
+		git pull origin master
+		install
+	else
+		printf "you need to have Git installed to make an update !"
+	fi
+}
+
+#check for install
+if [ "$1" = "install" ] 
+then
+	install
+fi
+
+
+#check for update
+if [ "$1" = "update" ] 
+then
+	update
+fi
 
 #create new directory
 echo "Please enter the name of the new website : "

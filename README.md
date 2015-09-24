@@ -8,15 +8,16 @@ Clone this repository wherever you want
 
 <b>$ git clone https://github.com/Jbuchs/vhost.git</b>
 
-Move the script in <i>/usr/bin</i>
+Enter the vhost directory
+<b>$ cd /vhost</b>
 
-<b>$ mv ./vhost /usr/bin</b>
+Start the script in <i>/usr/bin</i>
 
-Give execution rights on the script
+<b>$ sudo ./vhost install</b>
 
-<b>$ chmod a+x vhost</b>
+And that's all folks !
 
-Call the script from the terminal as root
+From now on, call the script from wherever you want in a terminal with :
 
 <b>$ sudo vhost</b>
 
@@ -26,3 +27,5 @@ Parameters
 -symfony :  Provide an access to the /web directory when calling the url
 
 -chmod :    Chmod directly the created directory <i>/var/www/thisDirectory</i>
+
+update :    To get the last Vhost's version

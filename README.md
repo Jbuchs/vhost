@@ -18,6 +18,9 @@ Start the script in <i>/usr/bin</i>
 
 And that's all folks !
 
+Use
+---
+
 From now on, call the script from wherever you want in a terminal with :
 
 <b>$ sudo vhost</b>

@@ -30,6 +30,6 @@ Parameters
 
 -symfony :  Provide an access to the /web directory when calling the url
 
--chmod :    Chmod directly the created directory <i>/var/www/thisDirectory</i>
+-chmod :    Chmod directly the created directory
 
 update :    To get the last Vhost's version

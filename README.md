@@ -36,3 +36,5 @@ Other
 install :	To enable vhost from everywhere on your computer (sudo required)
 update :    To get the last vhost's version (sudo required)
 
+<b>/!\ installation and updates have to be done from the installation directory</b>
+

@@ -33,8 +33,9 @@ Parameters
 Other
 -----
 
-install :	To enable vhost from everywhere on your computer (sudo required)
-update :    To get the last vhost's version (sudo required)
+sudo ./vhost install :	To enable vhost from everywhere on your computer
+
+sudo ./vhost update :    To get the last vhost's version
 
 <b>/!\ installation and updates have to be done from the installation directory</b>
 

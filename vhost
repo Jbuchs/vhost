@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# VHOST 1.1.2
+# VHOST 1.1.3
 # virtual host generator
-# Joel Buchs - 2014
+# Joel Buchs - 2015
 #-----------------------
 
 #some usefull variables
@@ -107,6 +107,16 @@ echo
 echo -e "\e[93mPlease enter the name of the new website : \e[39m"
 read dirName
 
+#vhost variables
+echo
+echo -e "\e[93mServerName (for instance : local.mysite.ch) : \e[39m"
+read serverName
+
+
+echo
+echo -e "\e[93mPlease enter the website administrator's email address : \e[39m"
+read serverAdmin
+
 #check if project using symfony
 if [ "$1" = "-symfony" ] || [ "$2" = "-symfony" ]
 then
@@ -120,8 +130,6 @@ then
 
 	echo
 	echo -e "\e[39minstalling Symfony 2..."
-	echo
-	echo "symfony has been successfully installed"
 	message="/app_dev.php"
 else
 	symfDirName=$dirName
@@ -133,23 +141,13 @@ else
 	sudo touch "/var/www/$dirName/index.html"
 	sudo chmod 777 "/var/www/$dirName/index.html"
 
-	echo "<h1>It works !!!</h1><p>Site successfully initialized! This file is located in <b>/var/www/$dirName</b></p>" > "/var/www/$dirName/index.html"
+	echo "<h1>It works!!!</h1><p>Site successfully initialized! This file is located in <b>/var/www/$dirName</b></p>" > "/var/www/$dirName/index.html"
 
 fi
 
 #create vhost file
 vhostpath="/etc/apache2/sites-available/$dirName.conf"
 sudo touch $vhostpath
-
-#vhost variables
-echo
-echo -e "\e[93mServerName (for instance : local.mysite.ch) : \e[39m"
-read serverName
-
-
-echo
-echo -e "\e[93mPlease enter the website administrator's email address : \e[39m"
-read serverAdmin
 
 echo
 echo -e "\e[39mcreating the virtual host..."
@@ -203,7 +201,7 @@ EOF'
 
 echo
 echo -e "\e[39mwebsite activation..."
-sudo a2ensite $dirName.conf
+sudo a2ensite $dirName.conf 2>&1 >/dev/null
 
 echo
 echo -e "\e[39madding an entry to the host file..."
@@ -216,3 +214,4 @@ sudo /etc/init.d/apache2 reload
 echo
 echo -e "\e[32mFinished ! Your website is available at this address: \e[39m"
 echo -e "\e[44m$serverName$message\e[39m\e[49m"
+echo

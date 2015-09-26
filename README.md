@@ -28,8 +28,11 @@ From now on, call the script from wherever you want in a terminal with :
 Parameters
 ----------
 
--symfony :  Provide an access to the /web directory when calling the url
+-symfony :  Install directly a new Symfony 2 Project ready to use
 
--chmod :    Chmod directly the created directory
+Other
+-----
 
-update :    To get the last Vhost's version
+install :	To enable vhost from everywhere on your computer
+update :    To get the last vhost's version
+

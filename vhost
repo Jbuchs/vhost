@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# VHOST 1.1
+# VHOST 1.1.2
 # virtual host generator
 # Joel Buchs - 2014
 #-----------------------
@@ -28,7 +28,7 @@ __   __| |__    ___   ___ | |_  `| |    `| |
  
 EOF
 
-printf "AVAILABLE COMMANDS\n\n sudo vhost -symfony\n sudo vhost -chmod\n sudo vhost install\n sudo vhost update\n\n"
+printf "AVAILABLE COMMANDS\n\n vhost install\n vhost update\n\n vhost -symfony\n\n "
 
 #install function
 function install {
@@ -38,7 +38,7 @@ function install {
 		sudo rm /usr/bin/vhost
 	fi
 
-	#cp script in the right directory
+	#copy script in the right directory
 	sudo cp ./vhost /usr/bin/vhost
 
 	#chmod the files
@@ -46,7 +46,9 @@ function install {
 
 	printf "The programm will restart in a few seconds..."
 
-	sleep 3
+	sleep 2
+
+	clear
 
 	sudo vhost
 }
@@ -59,7 +61,31 @@ function update {
 		git pull origin master
 		install
 	else
-		printf "you need to have Git installed to make an update !"
+		echo
+		echo -e "\e[91myou need to have Git installed to make an update !"
+	fi
+}
+
+#chown function
+function chownIt () {
+	
+	#get user
+	currentUser= whoami 2>&1 >/dev/null
+	#get primary group
+	primaryGroup= id -ng $currentUser 2>&1 >/dev/null
+	chown -R $currentUser:$primaryGroup $1
+
+}
+
+#install symfony
+function installSymfony () {
+	#check if symfony is present
+	if symfony --version 2>&1 >/dev/null
+	then
+		symfony new $1
+	else
+		echo
+		echo -e "\e[91myou need to have symfony installed !"
 	fi
 }
 
@@ -78,27 +104,38 @@ fi
 
 #create new directory
 echo
-echo -e "\e[93mPlease enter the name of the new website : "
+echo -e "\e[93mPlease enter the name of the new website : \e[39m"
 read dirName
-
-echo
-echo -e "\e[39mroot directory creation..."
-sudo mkdir "/var/www/$dirName"
 
 #check if project using symfony
 if [ "$1" = "-symfony" ] || [ "$2" = "-symfony" ]
 then
 	symfDirName="$dirName/$symfRootDir"
-	sudo mkdir "/var/www/$dirName/web"
-	message="<br><br>Please remove the <b>/web</b> directory and install your symfony project in <b>/var/www/$dirName</b>"
+	cd "/var/www/"
+	installSymfony $dirName 2>&1 >/dev/null
+	chownIt $dirName
+	#cache directories enabling
+	sudo chmod -R 777 "$dirName/app/cache"
+	sudo chmod -R 777 "$dirName/app/logs"
+
+	echo
+	echo -e "\e[39minstalling Symfony 2..."
+	echo
+	echo "symfony has been successfully installed"
+	message="/app_dev.php"
 else
-	symfDirName="$dirName"
+	symfDirName=$dirName
+	echo
+	echo -e "\e[39mroot directory creation..."
+	sudo mkdir "/var/www/$dirName"
+	cd "/var/www/"
+	chownIt $dirName
+	sudo touch "/var/www/$dirName/index.html"
+	sudo chmod 777 "/var/www/$dirName/index.html"
+
+	echo "<h1>It works !!!</h1><p>Site successfully initialized! This file is located in <b>/var/www/$dirName</b></p>" > "/var/www/$dirName/index.html"
+
 fi
-
-
-sudo touch "/var/www/$symfDirName/index.html"
-
-echo "<h1>It works !!!</h1><p>Site successfully initialized! This file is located in <b>/var/www/$symfDirName</b>. $message</p>" > "/var/www/$symfDirName/index.html"
 
 #create vhost file
 vhostpath="/etc/apache2/sites-available/$dirName.conf"
@@ -106,12 +143,12 @@ sudo touch $vhostpath
 
 #vhost variables
 echo
-echo -e "\e[93mServerName (for instance : local.mysite.ch) : "
+echo -e "\e[93mServerName (for instance : local.mysite.ch) : \e[39m"
 read serverName
 
 
 echo
-echo -e "\e[93mPlease enter the website administrator's email address : "
+echo -e "\e[93mPlease enter the website administrator's email address : \e[39m"
 read serverAdmin
 
 echo
@@ -120,17 +157,17 @@ echo -e "\e[39mcreating the virtual host..."
 sudo chmod 644 $vhostpath
 
 #virtual host generation
-sudo cat <<EOF >> "$vhostpath"
+sudo sh -c 'cat <<EOF >> '$vhostpath'
 <VirtualHost *:80>
-	ServerAdmin $serverAdmin
-	ServerName $serverName
+	ServerAdmin '$serverAdmin'
+	ServerName '$serverName'
 
-	DocumentRoot /var/www/$symfDirName
+	DocumentRoot /var/www/'$symfDirName'
 	<Directory />
 		Options FollowSymLinks
 		AllowOverride All
 	</Directory>
-	<Directory /var/www/$symfDirName>
+	<Directory /var/www/'$symfDirName'>
 		Options Indexes FollowSymLinks MultiViews
 		AllowOverride All
 		Order allow,deny
@@ -138,7 +175,7 @@ sudo cat <<EOF >> "$vhostpath"
 	</Directory>
 
 	ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
-	<Directory $dirUsrBin>
+	<Directory '$dirUsrBin'>
 		AllowOverride None
 		Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
 		Order allow,deny
@@ -151,8 +188,8 @@ sudo cat <<EOF >> "$vhostpath"
 
 	CustomLog /var/log/apache2/access.log combined
 
-    Alias /doc/ $dirShareDoc
-    <Directory $dirShareDoc>
+    Alias /doc/ '$dirShareDoc'
+    <Directory '$dirShareDoc'>
         Options Indexes MultiViews FollowSymLinks
         AllowOverride None
         Order deny,allow
@@ -161,7 +198,7 @@ sudo cat <<EOF >> "$vhostpath"
     </Directory>
 
 </VirtualHost>
-EOF
+EOF'
 
 
 echo
@@ -172,15 +209,10 @@ echo
 echo -e "\e[39madding an entry to the host file..."
 sudo sed -i '1s/^/127.0.0.1 \t'"$serverName"'\n/' /etc/hosts
 
-#chmod (optionnal)
-if [ "$1" = "-chmod" ] || [ "$2" = "-chmod" ]
-then
-	sudo chmod -R 777 "/var/www/$dirName"
-fi
-
 echo
 echo -e "\e[39mrestarting Apache..."
 sudo /etc/init.d/apache2 reload
 
 echo
-echo -e "\e[32mFinished! Your website is now available to this address : $serverName"
+echo -e "\e[32mFinished ! Your website is available at this address: \e[39m"
+echo -e "\e[44m$serverName$message\e[39m\e[49m"

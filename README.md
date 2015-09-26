@@ -33,6 +33,6 @@ Parameters
 Other
 -----
 
-install :	To enable vhost from everywhere on your computer
-update :    To get the last vhost's version
+install :	To enable vhost from everywhere on your computer (sudo required)
+update :    To get the last vhost's version (sudo required)
 

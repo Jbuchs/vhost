@@ -23,7 +23,7 @@ Use
 
 From now on, call the script from wherever you want in a terminal with :
 
-<b>$ sudo vhost</b>
+<b>$ vhost</b>
 
 Parameters
 ----------

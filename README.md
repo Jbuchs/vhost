@@ -12,7 +12,7 @@ Enter the vhost directory
 
 <b>$ cd /vhost</b>
 
-Install it
+Install vhost
 
 <b>$ sudo ./vhost install</b>
 

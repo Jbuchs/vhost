@@ -28,7 +28,7 @@ From now on, call the script from wherever you want in a terminal with :
 Parameters
 ----------
 
--symfony :  Install directly a new Symfony 2 Project ready to use
+-symfony :  Install directly a new ready to use Symfony 2 project
 
 Other
 -----

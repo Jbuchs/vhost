@@ -6,34 +6,36 @@ Requirements
 
 Symfony Installer needs to be installed.
 
-<b>$ sudo curl -LsS http://symfony.com/installer -o /usr/local/bin/symfony</b>
+```bash
+$ sudo curl -LsS http://symfony.com/installer -o /usr/local/bin/symfony
 
-<b>$ sudo chmod a+x /usr/local/bin/symfony</b>
+$ sudo chmod a+x /usr/local/bin/symfony
+```
 
 Installation
 ------------
 
 Clone this repository wherever you want
-
-<b>$ git clone https://github.com/Jbuchs/vhost.git</b>
-
+```bash
+$ git clone https://github.com/Jbuchs/vhost.git
+```
 Enter the vhost directory
-
-<b>$ cd /vhost</b>
-
+```bash
+$ cd /vhost
+```
 Install vhost
-
-<b>$ sudo ./vhost install</b>
-
+```bash
+$ sudo ./vhost install
+```
 And that's all folks !
 
 Use
 ---
 
 From now on, call the script from wherever you want in a terminal with :
-
-<b>$ vhost</b>
-
+```bash
+$ vhost
+```
 Parameters
 ----------
 

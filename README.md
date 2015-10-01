@@ -5,7 +5,9 @@ Requirements
 ------------
 
 Symfony Installer needs to be installed.
+
 <b>$ sudo curl -LsS http://symfony.com/installer -o /usr/local/bin/symfony</b>
+
 <b>$ sudo chmod a+x /usr/local/bin/symfony</b>
 
 Installation

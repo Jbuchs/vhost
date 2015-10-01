@@ -41,8 +41,8 @@ Parameters
 
 -symfony :  Install directly a new ready to use Symfony 2 project
 
-Other
------
+Others
+------
 
 sudo ./vhost install :	To enable vhost from everywhere on your computer
 

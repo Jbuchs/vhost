@@ -1,6 +1,13 @@
 # README #
 Vhost allows you to quickly create virtual hosts on Apache2 even if you don't know anything about Apache.
 
+Requirements
+------------
+
+Symfony Installer needs to be installed.
+<b>$ sudo curl -LsS http://symfony.com/installer -o /usr/local/bin/symfony</b>
+<b>$ sudo chmod a+x /usr/local/bin/symfony</b>
+
 Installation
 ------------
 

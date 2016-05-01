@@ -1,34 +1,40 @@
 #!/bin/bash
 
-# VHOST 1.1.3
+# VHOST 1.2.0
 # virtual host generator
 # Joel Buchs - 2015
 #-----------------------
 
-#some usefull variables
+#settings
 dirUsrBin="/usr/lib/cgi-bin"
 dirShareDoc="/usr/share/doc/"
 vhostpath=''
 symfDirName=''
 symfRootDir="web"
+drupalRootDir="web"
 message=''
+serverName=''
+adminMail='support@bluesystem.ch'
+
+#get user
+currentUser= whoami 2>&1 >/dev/null
+#get primary group
+primaryGroup= id -ng $currentUser 2>&1 >/dev/null
 
 #welcome
 cat << "EOF"
 
-        _                  _     __      __  
-       | |                | |   /  |    /  | 
-__   __| |__    ___   ___ | |_  `| |    `| | 
-\ \ / /| '_ \  / _ \ / __|| __|  | |     | | 
- \ V / | | | || (_) |\__ \| |_  _| |_ _ _| |_
-  \_/  |_| |_| \___/ |___/ \__| \___/(_)\___/
+ _  _  _  _   __   ____  ____         __         ____
+/ )( \/ )( \ /  \ / ___)(_  _)       /  \       (___ \
+\ \/ /) __ ((  O )\___ \  )(        (_/ /   _    / __/
+ \__/ \_)(_/ \__/ (____/ (__)        (__)  (_)  (____)
 
-				BY JOEL BUCHS                                         	
-   
- 
+	                                       BY JOEL BUCHS
+
+
 EOF
 
-printf "AVAILABLE COMMANDS\n\n vhost install\n vhost update\n\n vhost -symfony\n\n "
+printf "AVAILABLE COMMANDS\n\n vhost install\n vhost update\n\n vhost -symfony\n vhost -drupal [-notheme]\n\n "
 
 #install function
 function install {
@@ -68,13 +74,19 @@ function update {
 
 #chown function
 function chownIt () {
-	
-	#get user
-	currentUser= whoami 2>&1 >/dev/null
-	#get primary group
-	primaryGroup= id -ng $currentUser 2>&1 >/dev/null
+
 	chown -R $currentUser:$primaryGroup $1
 
+}
+
+#using ACL (cache/logs) for Symfony
+function usingAcl () {
+
+  rm -rf var/cache/* var/logs/* var/sessions/*
+
+  HTTPDUSER=`ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1`
+  sudo chmod -R +a "$HTTPDUSER allow delete,write,append,file_inherit,directory_inherit" var
+  sudo chmod -R +a "`whoami` allow delete,write,append,file_inherit,directory_inherit" var
 }
 
 #install symfony
@@ -82,6 +94,7 @@ function installSymfony () {
 	#check if symfony is present
 	if symfony --version 2>&1 >/dev/null
 	then
+    sudo symfony self-update
 		symfony new $1
 	else
 		echo
@@ -90,14 +103,14 @@ function installSymfony () {
 }
 
 #check for install
-if [ "$1" = "install" ] 
+if [ "$1" = "install" ]
 then
 	install
 fi
 
 
 #check for update
-if [ "$1" = "update" ] 
+if [ "$1" = "update" ]
 then
 	update
 fi
@@ -106,16 +119,25 @@ fi
 echo
 echo -e "\e[93mPlease enter the name of the new website : \e[39m"
 read dirName
+serverName=$dirName
 
 #vhost variables
 echo
-echo -e "\e[93mServerName (for instance : local.mysite.ch) : \e[39m"
+echo -e "\e[93mServerName [local.$serverName.ch] : \e[39m"
 read serverName
-
+if [ -z "$serverName" ]
+then
+  serverName="local.$dirName.ch"
+fi
 
 echo
-echo -e "\e[93mPlease enter the website administrator's email address : \e[39m"
+echo -e "\e[93mPlease enter the website administrator's email address [$adminMail] : \e[39m"
 read serverAdmin
+if [ -z "$serverAdmin" ]
+then
+  serverAdmin=$adminMail
+fi
+
 
 #check if project using symfony
 if [ "$1" = "-symfony" ] || [ "$2" = "-symfony" ]
@@ -124,22 +146,120 @@ then
 	cd "/var/www/"
 	installSymfony $dirName 2>&1 >/dev/null
 	chownIt $dirName
-	#cache directories enabling
-	sudo chmod -R 777 "$dirName/app/cache"
-	sudo chmod -R 777 "$dirName/app/logs"
+
+	#using ACL (cache/logs)
+	usingAcl
+
+  #check if chmod+a is available, otherwise enable ACL with second method
+  if [ $? -eq 0 ]; then
+    echo "ACL properly installed with first method"
+  else
+    #adding repository and installing setfacl for ACL managment
+    echo "installing setfacl for ACL managment"
+    sudo add-apt-repository "deb http://cz.archive.ubuntu.com/ubuntu trusty main"
+    sudo apt-get update
+    sudo apt-get install acl
+
+    HTTPDUSER=`ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1`
+    sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:`whoami`:rwX /var/www
+    sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:`whoami`:rwX /var/www
+
+    if [ $? -eq 0 ]; then
+      echo "ACL properly installed with second method"
+    else
+
+      HTTPDUSER=`ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1`
+      sudo setfacl -R -m -n u:"$HTTPDUSER":rwX -m u:`whoami`:rwX /var/www
+      sudo setfacl -dR -m -n u:"$HTTPDUSER":rwX -m u:`whoami`:rwX /var/www
+
+      if [ $? -eq 0 ]; then
+        echo "ACL properly installed with third method"
+      else
+        echo -e "\e[93mWarning : unable to install ACL\e[39m"
+
+        chownIt "$symfDirName/"
+      fi
+    fi
+  fi
 
 	echo
 	echo -e "\e[39minstalling Symfony 2..."
 	message="/app_dev.php"
+
+elif [ "$1" = "-drupal" ] || [ "$2" = "-drupal" ]
+then
+  #installing nodejs/gulp/foundation/php gd
+  sudo npm install n -g
+  sudo n stable
+  sudo npm install -g gulp
+  sudo npm install --global foundation-cli
+  sudo apt-get install php5-gd
+
+  #installing composer if not installed
+	if composer --version 2>&1 >/dev/null
+	then
+    echo "Composer detected"
+    sudo composer self-update
+	else
+    curl -sS https://getcomposer.org/installer | php
+    sudo mv composer.phar /usr/local/bin/composer
+    sudo chown $currentUser:$primaryGroup /usr/local/bin/composer
+	fi
+
+  #installing curl if not installed
+	if curl --version 2>&1 >/dev/null
+	then
+    echo "Curl detected"
+	else
+    sudo apt-get install php5-curl
+    echo "Curl was successfully installed"
+	fi
+
+  #Drupal installation
+  cd /var/www
+  mkdir $dirName
+  cd /var/www/$dirName
+  if [ "$2" -ne "-notheme" ] || [ "$3" -ne "-notheme" ]
+  then
+    git clone https://bluesys@bitbucket.org/bluesys/bs-drupal8.ch.git ./
+    sudo composer update
+    cd web/sites/default
+    rm settings.php
+    cp default.settings.php settings.php
+    chmod 0777 settings.php
+    mkdir files
+    chmod 0777 files
+
+    #Base custom theme installation
+    cd /var/www/$dirName/web/themes/bluesys01
+    npm install gulp
+    npm install gulp-load-plugins
+    npm install gulp-sass
+    npm install gulp-autoprefixer
+
+    foundation update
+    foundation watch
+
+    symfDirName="$dirName/$drupalRootDir"
+  else
+    git clone https://github.com/drupal/drupal.git ./
+    sudo composer update
+
+    symfDirName=$dirName
+  fi
+
+  sudo composer update
+
 else
 	symfDirName=$dirName
 	echo
 	echo -e "\e[39mroot directory creation..."
-	sudo mkdir "/var/www/$dirName"
+	mkdir "/var/www/$dirName"
 	cd "/var/www/"
 	chownIt $dirName
 	sudo touch "/var/www/$dirName/index.html"
-	sudo chmod 777 "/var/www/$dirName/index.html"
+  sudo chmod 777 "/var/www/$dirName/index.html"
+
 
 	echo "<h1>It works!!!</h1><p>Site successfully initialized! This file is located in <b>/var/www/$dirName</b></p>" > "/var/www/$dirName/index.html"
 
